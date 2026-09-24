@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operasyon Belgesi | Roads-on</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Admin CSS & Print Styles -->
+    <link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+<body class="print-page-wrapper">
+
+    <!-- Floating Print Control Bar (Hidden when printing) -->
+    <div class="print-floating-bar">
+        <button type="button" id="btnTriggerPrint" class="btn-primary-action" style="padding: 8px 20px; font-size: 0.9rem;">
+            <span>🖨️ Yazdır / PDF İndir</span>
+        </button>
+        <button type="button" onclick="window.close()" class="btn-secondary-action" style="padding: 8px 16px; font-size: 0.9rem;">
+            <span>✕ Kapat</span>
+        </button>
+    </div>
+
+    <!-- Official A4 Sheet -->
+    <div class="a4-document-sheet" id="printDocSheet">
+        
+        <!-- Header -->
+        <header class="doc-header-block">
+            <div class="doc-brand-block">
+                <img src="/assets/img/roads_on_logo_transparent.png" alt="Roads-on Logo" class="doc-brand-logo">
+                <div>
+                    <div class="doc-brand-name">ROADS-ON</div>
+                    <div class="doc-brand-sub">Global Logistics & Customs</div>
+                </div>
+            </div>
+
+            <div class="doc-official-title">
+                <div class="doc-title-main">TAŞIMA & OPERASYON SEVK FORMU</div>
+                <div class="doc-no-badge" id="printDocNo">RO-2026-0001</div>
+                <div class="doc-date-sub">Düzenleme Tarihi: <span id="printDocDate">2026-09-01</span></div>
+            </div>
+        </header>
+
+        <!-- Main Information Grid Table -->
+        <table class="doc-grid-table">
+            <tbody>
+                <tr>
+                    <th>MÜŞTERİ / FİRMA</th>
+                    <td colspan="3" id="printCompany" style="font-size: 11pt; color: #0B192C;">-</td>
+                </tr>
+                <tr>
+                    <th>TAŞIMA GÜZERGAHI</th>
+                    <td colspan="3" id="printRoute">-</td>
+                </tr>
+                <tr>
+                    <th>ARAÇ / DORSE PLAKASI</th>
+                    <td id="printPlate">-</td>
+                    <th style="width: 22%;">ŞOFÖR BİLGİSİ</th>
+                    <td id="printDriver">-</td>
+                </tr>
+                <tr>
+                    <th>HİZMET / NAVLUN BEDELİ</th>
+                    <td id="printPrice" style="font-size: 11pt; font-weight: 800; color: #FF6500;">-</td>
+                    <th>FATURA BİLGİSİ</th>
+                    <td id="printInvoice">-</td>
+                </tr>
+            </tbody>
+            <tbody id="printCustomFieldsTbody">
+                <!-- Dynamic Custom Fields will be appended here -->
+            </tbody>
+        </table>
+
+        <!-- Operational Notes & Free Text -->
+        <div class="doc-section-heading">OPERASYONEL NOTLAR VE ÖZEL ŞARTLAR</div>
+        <div class="doc-notes-container" id="printNotes">
+            -
+        </div>
+
+        <!-- Official Approval & Signature Boxes -->
+        <div class="doc-signatures-row">
+            <div class="signature-box">
+                <span class="signature-title">DÜZENLEYEN / ROADS-ON OPERASYON</span>
+                <div class="signature-line">Yetkili İmza & Kaşe</div>
+            </div>
+
+            <div class="signature-box">
+                <span class="signature-title">TESLİM ALAN / MÜŞTERİ YETKİLİSİ</span>
+                <div class="signature-line">Yetkili İmza & Kaşe</div>
+            </div>
+        </div>
+
+        <!-- Footer Meta & Timestamp -->
+        <footer class="doc-footer-meta">
+            <div>Roads-on Lojistik & Gümrükleme Hizmetleri &bull; www.roads-on.com</div>
+            <div id="printTimestamp">Yazdırma / Çıktı Tarihi: -</div>
+        </footer>
+
+    </div>
+
+    <!-- Admin JS -->
+    <script src="/admin/assets/admin.js"></script>
+</body>
+</html>

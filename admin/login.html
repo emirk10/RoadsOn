@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yönetici Girişi | Roads-on Belge Yönetim Portalı</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+
+<body>
+
+    <div class="login-page-wrap">
+        <div class="login-card">
+            <!-- Brand Logo -->
+            <img src="/assets/img/roads_on_logo_transparent.png" alt="Roads-on Logo" class="login-brand-logo">
+
+            <h1 class="login-title">ROADS-ON</h1>
+            <p class="login-subtitle">Operasyon & Belge Yönetim Portalı</p>
+
+            <!-- Alert Box -->
+            <div id="loginAlert" class="alert-box alert-danger"></div>
+
+            <!-- Form -->
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="usernameInput" class="form-label">Kullanıcı Adı</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="usernameInput" class="form-control" placeholder="Yönetici Kullanıcı Adı"
+                            required autofocus autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="passwordInput" class="form-label">Şifre</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon">🔑</span>
+                        <input type="password" id="passwordInput" class="form-control" placeholder="••••••••" required
+                            autocomplete="current-password">
+                        <button type="button" id="togglePasswordBtn" class="toggle-password-btn"
+                            title="Şifreyi Göster/Gizle">👁️</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit-login">
+                    <span>Giriş Yap</span>
+                    <span aria-hidden="true">&rarr;</span>
+                </button>
+            </form>
+
+            <a href="/" class="login-back-link">&larr; Web Sitesine Geri Dön</a>
+        </div>
+    </div>
+
+    <!-- Admin JS -->
+    <script src="/admin/assets/admin.js"></script>
+</body>
+
+</html>

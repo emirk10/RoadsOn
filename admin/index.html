@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operasyon & Belge Yönetim Paneli | Roads-on</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="/admin/assets/admin.css">
+</head>
+
+<body>
+
+    <div class="admin-layout">
+        <!-- Top Navbar -->
+        <header class="admin-navbar">
+            <div class="admin-nav-brand">
+                <img src="/assets/img/roads_on_logo_transparent.png" alt="Roads-on Logo" class="admin-nav-logo">
+                <div class="admin-nav-brand-text">
+                    <h1 class="admin-nav-title">ROADS-ON</h1>
+                    <span class="admin-nav-badge">Operasyon Paneli</span>
+                </div>
+            </div>
+
+            <div class="admin-nav-actions">
+                <div class="nav-user-pill">
+                    <span class="nav-user-avatar" id="navAvatar">👤</span>
+                    <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                        <span id="navUsername" class="nav-user-name">Kullanıcı</span>
+                        <span id="navRoleBadge" class="nav-user-role-badge">Admin</span>
+                    </div>
+                </div>
+
+                <button type="button" id="btnChangePass" class="btn-nav-outline" title="Şifre Değiştir">
+                    <span>🔑</span> <span class="btn-nav-text">Şifre Değiştir</span>
+                </button>
+
+                <a href="/" target="_blank" class="btn-nav-outline" title="Web Sitesini Görüntüle">
+                    <span>🌐</span> <span class="btn-nav-text">Siteyi Aç</span>
+                </a>
+
+                <button type="button" id="btnLogout" class="btn-nav-danger" title="Güvenli Çıkış">
+                    <span>🚪</span> <span class="btn-nav-text">Çıkış</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main-content">
+
+            <!-- Dashboard Navigation Tabs -->
+            <div class="admin-tabs-bar">
+                <div class="tabs-list">
+                    <button type="button" class="tab-btn active" data-tab="builder">
+                        <span>➕ Yeni Belge Oluştur</span>
+                    </button>
+                    <button type="button" class="tab-btn" data-tab="archive">
+                        <span>📁 Kayıtlı Belgeler Arşivi</span>
+                        <span class="tab-badge" id="archiveCountBadge">0 Belge</span>
+                    </button>
+                    <!-- Admin Only Tabs -->
+                    <button type="button" class="tab-btn admin-only-tab" data-tab="snapmap" style="display: none;">
+                        <span>🗺️ Dünya Haritası</span>
+                    </button>
+                    <button type="button" class="tab-btn admin-only-tab" data-tab="contacts" style="display: none;">
+                        <span>👥 Kişiler & İş Ortakları</span>
+                        <span class="tab-badge" id="contactsCountBadge">0 Kişi</span>
+                    </button>
+                    <button type="button" class="tab-btn admin-only-tab" data-tab="workers" style="display: none;">
+                        <span>👔 Çalışan Yönetimi</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB 1: DOCUMENT BUILDER (FORM + LIVE PREVIEW) -->
+            <div id="tabBuilder">
+                <div class="doc-builder-container">
+
+                    <!-- Left: Form Panel -->
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <h2 class="panel-title" id="builderFormTitle">
+                                <span>➕ Yeni Belge Oluştur</span>
+                            </h2>
+                            <button type="button" id="btnClearForm" class="btn-nav-outline" style="font-size: 0.8rem;">
+                                🔄 Formu Temizle
+                            </button>
+                        </div>
+
+                        <form id="docBuilderForm">
+                            <!-- 1. Belge & Tarih -->
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="docNumberInput">Belge Numarası</label>
+                                    <input type="text" id="docNumberInput" class="form-input" placeholder="RO-2026-0001"
+                                        required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="docDateInput">Belge Tarihi</label>
+                                    <input type="date" id="docDateInput" class="form-input" required>
+                                </div>
+                            </div>
+
+                            <!-- 2. Firma & Güzergah -->
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label class="form-label" for="companyNameInput">Müşteri / Firma Adı *</label>
+                                <input type="text" id="companyNameInput" class="form-input"
+                                    placeholder="Örn: ABC Lojistik ve Dış Ticaret A.Ş." required>
+                            </div>
+
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="fromLocInput">Nereden (Çıkış Noktası /
+                                        Gümrük)</label>
+                                    <input type="text" id="fromLocInput" class="form-input"
+                                        placeholder="Örn: Ambarlı Limanı / İstanbul">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="toLocInput">Nereye (Varış Noktası / Kapı)</label>
+                                    <input type="text" id="toLocInput" class="form-input"
+                                        placeholder="Örn: Münih / Almanya">
+                                </div>
+                            </div>
+
+                            <!-- 3. Araç & Şoför Bilgileri -->
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="plateInput">Araç Plakası & Dorse No</label>
+                                    <input type="text" id="plateInput" class="form-input"
+                                        placeholder="Örn: 34 RO 9988 / 34 DR 1122">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="driverInput">Şoför Bilgileri (Ad-Soyad, Tel,
+                                        TC)</label>
+                                    <input type="text" id="driverInput" class="form-input"
+                                        placeholder="Örn: Ahmet Yılmaz - 0532 000 0000">
+                                </div>
+                            </div>
+
+                            <!-- 4. Ücret & Fatura -->
+                            <div class="form-grid-3">
+                                <div class="form-group">
+                                    <label class="form-label" for="priceInput">Navlun / Hizmet Bedeli</label>
+                                    <input type="number" id="priceInput" class="form-input" placeholder="0.00"
+                                        step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="currencySelect">Para Birimi</label>
+                                    <select id="currencySelect" class="form-select">
+                                        <option value="TRY">₺ TRY</option>
+                                        <option value="USD">$ USD</option>
+                                        <option value="EUR">€ EUR</option>
+                                        <option value="GBP">£ GBP</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="invoiceInput">Fatura / Vergi Bilgisi</label>
+                                    <input type="text" id="invoiceInput" class="form-input"
+                                        placeholder="Örn: FT-2026-9812 / KDV Dahil">
+                                </div>
+                            </div>
+
+                            <!-- 4.1 Sevkiyat Kapsamı & Ödeme Durumu -->
+                            <div class="form-grid-2" style="margin-bottom: 20px;">
+                                <div class="form-group">
+                                    <label class="form-label" for="shippingScopeSelect">Sevkiyat Kapsamı</label>
+                                    <select id="shippingScopeSelect" class="form-select">
+                                        <option value="yurtici">🇹🇷 Yurtiçi Taşıma</option>
+                                        <option value="yurtdisi">🌐 Yurtdışı / Uluslararası Taşıma</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="isPaidSelect">Ödeme Durumu</label>
+                                    <select id="isPaidSelect" class="form-select">
+                                        <option value="0">🔴 Ödeme Alınmadı (Bekliyor)</option>
+                                        <option value="1">🟢 Ödeme Alındı (Tahsil Edildi)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 5. Dinamik Özel Alanlar (Dynamic Custom Fields) -->
+                            <div class="custom-fields-section">
+                                <div class="custom-fields-head">
+                                    <div class="custom-fields-title">
+                                        <span>İsteğe Bağlı Alanlar</span>
+                                    </div>
+                                    <button type="button" id="btnAddField" class="btn-add-field">
+                                        <span>+ Yeni Alan Ekle</span>
+                                    </button>
+                                </div>
+                                <div id="customFieldsContainer">
+                                    <!-- Dynamic rows will be inserted here -->
+                                </div>
+                            </div>
+
+                            <!-- 6. Operasyonel Notlar / Açıklama -->
+                            <div class="form-group" style="margin-bottom: 24px;">
+                                <label class="form-label" for="notesInput">Serbest Metin & Operasyonel Notlar</label>
+                                <textarea id="notesInput" class="form-textarea"
+                                    placeholder="Taşıma şartları, teslimat talimatları, gümrük detayları veya özel notlarınızı buraya yazabilirsiniz..."></textarea>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="form-actions-row">
+                                <button type="submit" class="btn-primary-action">
+                                    <span>💾 Belgeyi Kaydet</span>
+                                </button>
+                                <button type="button" id="btnSaveAndPrint" class="btn-primary-action"
+                                    style="background:#10b981;">
+                                    <span>🖨️ Kaydet & Yazdır / PDF</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Right: Live A4 Preview Card -->
+                    <div class="live-preview-card">
+                        <div class="preview-head">
+                            <div class="preview-logo-box">
+                                <img src="/assets/img/roads_on_logo_transparent.png" alt="Logo" class="preview-logo">
+                                <span class="preview-brand">ROADS-ON</span>
+                            </div>
+                            <div class="preview-doc-meta">
+                                <div class="preview-doc-no" id="prevDocNo">RO-2026-0001</div>
+                                <small style="color: #64748b;" id="prevDocDate">2026-09-01</small>
+                            </div>
+                        </div>
+
+                        <table class="preview-table">
+                            <tbody>
+                                <tr>
+                                    <th>FİRMA</th>
+                                    <td id="prevCompany">-</td>
+                                </tr>
+                                <tr>
+                                    <th>GÜZERGAH</th>
+                                    <td id="prevRoute">- &rarr; -</td>
+                                </tr>
+                                <tr>
+                                    <th>ARAÇ / DORSE</th>
+                                    <td id="prevPlate">-</td>
+                                </tr>
+                                <tr>
+                                    <th>ŞOFÖR</th>
+                                    <td id="prevDriver">-</td>
+                                </tr>
+                                <tr>
+                                    <th>KAPSAM</th>
+                                    <td id="prevScope"><span class="doc-scope-toggle scope-dom"
+                                            style="font-size:0.72rem; padding:2px 8px;">🇹🇷 Yurtiçi</span></td>
+                                </tr>
+                                <tr>
+                                    <th>ÖDEME</th>
+                                    <td id="prevPayment"><span class="doc-payment-toggle payment-unpaid"
+                                            style="font-size:0.72rem; padding:2px 8px;">🔴 Alınmadı</span></td>
+                                </tr>
+                                <tr>
+                                    <th>TUTAR</th>
+                                    <td id="prevPrice" style="font-weight: 700; color: #0B192C;">0 ₺</td>
+                                </tr>
+                                <tr>
+                                    <th>FATURA BİLGİSİ</th>
+                                    <td id="prevInvoice">-</td>
+                                </tr>
+                            </tbody>
+                            <tbody id="prevCustomFieldsTbody">
+                                <!-- Dynamic fields in preview -->
+                            </tbody>
+                        </table>
+
+                        <strong style="font-size: 0.78rem; text-transform: uppercase; color: #475569;">Operasyonel
+                            Notlar:</strong>
+                        <div class="preview-notes-box" id="prevNotesBox">
+                            Ek açıklama veya operasyonel not girilmedi.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- TAB 2: DOCUMENT ARCHIVE -->
+            <div id="tabArchive" style="display: none;">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h2 class="panel-title">
+                            <span>📁 Kayıtlı Belgeler Arşivi</span>
+                        </h2>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div class="archive-filter-bar">
+                        <div class="search-input-wrap">
+                            <span class="search-icon-span">🔍</span>
+                            <input type="text" id="archiveSearchInput" class="form-input"
+                                placeholder="Belge No, Firma, Güzergah veya Plaka ile anında ara...">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <select id="archiveScopeFilter" class="form-select" style="width: auto;">
+                                <option value="">🌍 Tüm Kapsamlar</option>
+                                <option value="yurtici">🇹🇷 Yurtiçi</option>
+                                <option value="yurtdisi">🌐 Yurtdışı</option>
+                            </select>
+                            <select id="archivePaymentFilter" class="form-select" style="width: auto;">
+                                <option value="">💰 Tüm Ödemeler</option>
+                                <option value="1">🟢 Ödeme Alındı</option>
+                                <option value="0">🔴 Ödeme Alınmadı</option>
+                            </select>
+                            <label class="form-label" style="margin: 0; font-size: 0.82rem;">Tarih:</label>
+                            <input type="date" id="archiveStartDate" class="form-input" style="width: auto;">
+                            <span style="color: var(--adm-text-muted);">-</span>
+                            <input type="date" id="archiveEndDate" class="form-input" style="width: auto;">
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="adm-table">
+                            <thead>
+                                <tr>
+                                    <th>Belge No</th>
+                                    <th>Tarih</th>
+                                    <th>Firma</th>
+                                    <th>Güzergah</th>
+                                    <th>Kapsam</th>
+                                    <th>Ödeme Durumu</th>
+                                    <th>Tutar</th>
+                                    <th>Yazdırma Durumu</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="archiveTableBody">
+                                <!-- Rows will be rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: SNAPCHAT STYLE WORLD MAP (ADMIN ONLY) -->
+            <div id="tabSnapmap" style="display: none;">
+                <div class="panel-card" style="padding: 20px;">
+                    <div class="panel-header" style="flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                        <div>
+                            <h2 class="panel-title" style="margin-bottom: 4px;">
+                                <span>🗺️ Operasyon & Sevkiyat Haritası</span>
+                            </h2>
+                            <p style="color: var(--adm-text-muted); font-size: 0.85rem; margin: 0;">
+                                İş yaptığınız kişilerin, şoförlerin ve kargoların dünya haritası üzerindeki anlık
+                                konumları ve serbest operasyonel notları.
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button type="button" id="btnResetMapView" class="btn-nav-outline"
+                                title="Varsayılan Dünya Görünümüne Dön">
+                                <span>🌍 Haritayı Ortala</span>
+                            </button>
+                            <button type="button" id="btnOpenAddContactFromMap" class="btn-primary-action"
+                                style="padding: 8px 16px; font-size: 0.85rem;">
+                                <span>➕ Yeni Kişi / Konum Ekle</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Map Container with overlay elements -->
+                    <div class="snapmap-wrapper">
+                        <div id="snapWorldMap" class="snapmap-canvas"></div>
+
+                        <!-- Map Quick Search & Info Overlay Bar -->
+                        <div class="map-floating-bar">
+                            <span class="map-floating-icon">🔍</span>
+                            <input type="text" id="mapSearchInput"
+                                placeholder="Haritada kişi, şehir veya güzergah ara..." class="map-search-input">
+                            <div class="map-stats-pill" id="mapPinsCountBadge">0 Konum</div>
+                        </div>
+
+                        <!-- Click to pick location helper banner (toggleable) -->
+                        <div id="mapLocationPickerBanner" class="map-picker-banner" style="display: none;">
+                            <span>📍 <strong>Konum Seçim Modu:</strong> Harita üzerinde istediğiniz bir noktaya
+                                tıklayın.</span>
+                            <button type="button" id="btnCancelLocationPicker" class="btn-picker-cancel">Vazgeç</button>
+                        </div>
+
+                        <!-- Snapchat Style Sliding Detail Bottom-Sheet / Card -->
+                        <div id="mapContactDetailCard" class="snapmap-detail-card" style="display: none;">
+                            <div class="snapmap-card-head">
+                                <div class="snapmap-card-user">
+                                    <div class="snapmap-card-avatar" id="cardAvatar">AY</div>
+                                    <div>
+                                        <h3 class="snapmap-card-name" id="cardName">Ahmet Yılmaz</h3>
+                                        <div class="snapmap-card-company" id="cardCompany">Yılmaz Global Lojistik</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span class="snapmap-card-status" id="cardStatusBadge">🚚 Sevkiyatta</span>
+                                    <button type="button" id="btnCloseCard" class="snapmap-card-close"
+                                        title="Kapat">&times;</button>
+                                </div>
+                            </div>
+
+                            <div class="snapmap-card-body">
+                                <!-- Route banner -->
+                                <div class="snapmap-route-box">
+                                    <div class="snapmap-route-point">
+                                        <span class="route-label">Çıkış Noktası</span>
+                                        <strong class="route-val" id="cardFromLoc">-</strong>
+                                    </div>
+                                    <div class="snapmap-route-arrow">&rarr;</div>
+                                    <div class="snapmap-route-point">
+                                        <span class="route-label">Varış Noktası</span>
+                                        <strong class="route-val" id="cardToLoc">-</strong>
+                                    </div>
+                                </div>
+
+                                <!-- Details Grid -->
+                                <div class="snapmap-details-grid">
+                                    <div class="detail-item">
+                                        <span class="detail-label">📦 Yük / Kargo:</span>
+                                        <span class="detail-val" id="cardCargo">-</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">🚛 Araç / Plaka:</span>
+                                        <span class="detail-val" id="cardPlate">-</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">📍 Konum Bilgisi:</span>
+                                        <span class="detail-val" id="cardLocationName">-</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">📞 İletişim:</span>
+                                        <span class="detail-val" id="cardPhone">-</span>
+                                    </div>
+                                </div>
+
+                                <!-- Notes section -->
+                                <div class="snapmap-notes-section">
+                                    <div class="snapmap-notes-title">
+                                        <span>📝 Kişi / Sevkiyat Notları:</span>
+                                    </div>
+                                    <div class="snapmap-notes-text" id="cardNotes">
+                                        Not girilmedi.
+                                    </div>
+                                </div>
+
+                                <!-- Card Actions -->
+                                <div class="snapmap-card-actions">
+                                    <button type="button" id="btnCardEditContact" class="btn-primary-action"
+                                        style="padding: 8px 16px; font-size: 0.85rem;">
+                                        ✏️ Bilgileri Düzenle
+                                    </button>
+                                    <a id="btnCardCall" href="#" class="btn-nav-outline"
+                                        style="padding: 8px 16px; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                                        📞 Hemen Ara
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: CONTACTS & PARTNERS DIRECTORY (ADMIN ONLY) -->
+            <div id="tabContacts" style="display: none;">
+                <div class="panel-card">
+                    <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h2 class="panel-title">
+                                <span>👥 İş Yapılan Kişiler & Müşteri Rehberi</span>
+                            </h2>
+                            <p style="color: var(--adm-text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">
+                                Birlikte çalıştığınız kişileri, müşterileri ve yük taşıyıcılarını kaydedin, harita ve
+                                notlarını yönetin.
+                            </p>
+                        </div>
+                        <button type="button" id="btnNewContact" class="btn-primary-action" style="padding: 10px 20px;">
+                            <span>➕ Yeni Kişi Kaydet</span>
+                        </button>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div class="archive-filter-bar">
+                        <div class="search-input-wrap">
+                            <span class="search-icon-span">🔍</span>
+                            <input type="text" id="contactsSearchInput" class="form-input"
+                                placeholder="İsim, firma adı, güzergah, plaka veya serbest notlarda ara...">
+                        </div>
+                    </div>
+
+                    <!-- Contacts Table -->
+                    <div class="table-responsive">
+                        <table class="adm-table">
+                            <thead>
+                                <tr>
+                                    <th>Kişi / Firma</th>
+                                    <th>İletişim</th>
+                                    <th>Güzergah (Nereden &rarr; Nereye)</th>
+                                    <th>Yük & Araç</th>
+                                    <th>Konum</th>
+                                    <th>Notlar</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contactsTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: WORKER MANAGEMENT (ADMIN ONLY) -->
+            <div id="tabWorkers" style="display: none;">
+                <div class="panel-card">
+                    <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h2 class="panel-title">
+                                <span>👔 Çalışan Yönetimi & Yetkilendirme</span>
+                            </h2>
+                            <p style="color: var(--adm-text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">
+                                Yeni çalışan hesapları açın, şifrelerini belirleyin ve dilediğiniz an hesapları
+                                <strong>Aktif / Pasif</strong> durumuna getirin.
+                            </p>
+                        </div>
+                        <button type="button" id="btnNewWorker" class="btn-primary-action" style="padding: 10px 20px;">
+                            <span>➕ Yeni Çalışan Ekle</span>
+                        </button>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div class="alert-box"
+                        style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); color: #93c5fd; display: block; margin-bottom: 20px;">
+                        ℹ️ <strong>Rol Bilgisi:</strong> Çalışanlar sisteme giriş yaptıklarında yalnızca <em>Belge
+                            Oluşturma & Belge Arşivi</em> ekranlarına erişebilir. Harita, Kişiler Rehberi ve Çalışan
+                        Yönetimi sekmeleri yalnızca Yönetici (Admin) rolüne açıktır.
+                    </div>
+
+                    <!-- Workers Table -->
+                    <div class="table-responsive">
+                        <table class="adm-table">
+                            <thead>
+                                <tr>
+                                    <th>Kullanıcı Adı</th>
+                                    <th>Adı Soyadı / Not</th>
+                                    <th>Rol</th>
+                                    <th>Hesap Durumu</th>
+                                    <th>Kayıt Tarihi</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workersTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- CHANGE PASSWORD MODAL (CURRENT USER) -->
+    <div id="passwordModal" class="modal-backdrop-custom">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3 class="modal-title">🔑 Şifre Değiştir</h3>
+                <button type="button" id="btnClosePassModal" class="modal-close-btn">&times;</button>
+            </div>
+
+            <div id="passAlert" class="alert-box alert-danger"></div>
+
+            <form id="changePassForm">
+                <div class="modal-body-scroll">
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label" for="currentPassInput">Mevcut Şifre</label>
+                        <input type="password" id="currentPassInput" class="form-input" required
+                            autocomplete="current-password" placeholder="••••••••">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label" for="newPassInput">Yeni Şifre (En az 6 karakter)</label>
+                        <input type="password" id="newPassInput" class="form-input" required minlength="6"
+                            autocomplete="new-password" placeholder="••••••••">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label" for="newPassConfirmInput">Yeni Şifre Tekrarı</label>
+                        <input type="password" id="newPassConfirmInput" class="form-input" required minlength="6"
+                            autocomplete="new-password" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div class="modal-actions-sticky">
+                    <button type="button" class="btn-secondary-action"
+                        onclick="document.getElementById('passwordModal').classList.remove('active')">İptal</button>
+                    <button type="submit" class="btn-primary-action">Şifreyi Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADD / EDIT CONTACT MODAL (ADMIN ONLY) -->
+    <div id="contactModal" class="modal-backdrop-custom">
+        <div class="modal-card" style="max-width: 680px;">
+            <div class="modal-head">
+                <h3 class="modal-title" id="contactModalTitle">👥 Yeni Kişi / İş Ortağı Ekle</h3>
+                <button type="button" id="btnCloseContactModal" class="modal-close-btn">&times;</button>
+            </div>
+
+            <form id="contactForm">
+                <input type="hidden" id="contactIdInput">
+
+                <div class="modal-body-scroll">
+                    <!-- Row 1: Name & Company -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="contactNameInput">Kişi Adı & Soyadı</label>
+                            <input type="text" id="contactNameInput" class="form-input" placeholder="Örn: Ahmet Yılmaz">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="contactCompanyInput">Firma / Kurum Adı</label>
+                            <input type="text" id="contactCompanyInput" class="form-input"
+                                placeholder="Örn: Yılmaz Global Lojistik">
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Phone & Email -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="contactPhoneInput">Telefon Numarası</label>
+                            <input type="text" id="contactPhoneInput" class="form-input"
+                                placeholder="Örn: +90 532 000 0000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="contactEmailInput">E-Posta Adresi</label>
+                            <input type="email" id="contactEmailInput" class="form-input"
+                                placeholder="Örn: info@firma.com">
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Route (From -> To) -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="contactFromLocInput">Nereden (Çıkış Noktası /
+                                Yükleme)</label>
+                            <input type="text" id="contactFromLocInput" class="form-input"
+                                placeholder="Örn: İstanbul (Ambarlı)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="contactToLocInput">Nereye (Varış Noktası / Teslimat)</label>
+                            <input type="text" id="contactToLocInput" class="form-input"
+                                placeholder="Örn: Münih / Almanya">
+                        </div>
+                    </div>
+
+                    <!-- Row 4: Cargo & Plate -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="contactCargoInput">Yük / Kargo Detayı</label>
+                            <input type="text" id="contactCargoInput" class="form-input"
+                                placeholder="Örn: Tekstil, Makine Parçası...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="contactPlateInput">Araç Plakası & Şoför Bilgisi</label>
+                            <input type="text" id="contactPlateInput" class="form-input"
+                                placeholder="Örn: 34 RO 9988 / Ali Usta">
+                        </div>
+                    </div>
+
+                    <!-- Row 5: Status & Avatar Color -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label" for="contactStatusSelect">Durum</label>
+                            <select id="contactStatusSelect" class="form-select">
+                                <option value="active">🟢 Aktif Ortak</option>
+                                <option value="transit">🚚 Yolda / Sevkiyatta</option>
+                                <option value="pending">⏳ Beklemede</option>
+                                <option value="completed">✅ Tamamlandı</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Harita Rozet Rengi</label>
+                            <div class="color-picker-row" id="avatarColorPicker">
+                                <div class="color-choice active" data-color="#FF6500" style="background:#FF6500;"
+                                    title="Turuncu"></div>
+                                <div class="color-choice" data-color="#10b981" style="background:#10b981;"
+                                    title="Yeşil"></div>
+                                <div class="color-choice" data-color="#3b82f6" style="background:#3b82f6;" title="Mavi">
+                                </div>
+                                <div class="color-choice" data-color="#8b5cf6" style="background:#8b5cf6;" title="Mor">
+                                </div>
+                                <div class="color-choice" data-color="#ef4444" style="background:#ef4444;"
+                                    title="Kırmızı"></div>
+                                <div class="color-choice" data-color="#f59e0b" style="background:#f59e0b;" title="Sarı">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location & Map Coordinates Box -->
+                    <div class="custom-fields-section" style="margin-bottom: 16px;">
+                        <div class="custom-fields-head">
+                            <span class="custom-fields-title">🗺️ Harita Konumu (SnapMap Pin)</span>
+                            <button type="button" id="btnPickLocationOnMap" class="btn-add-field"
+                                style="font-size: 0.75rem;">
+                                📍 Haritada Tıklayarak Seç
+                            </button>
+                        </div>
+
+                        <div class="form-grid-3" style="margin-top: 10px;">
+                            <div class="form-group">
+                                <label class="form-label" for="contactLocNameInput">Konum Adı (Şehir/Ülke)</label>
+                                <input type="text" id="contactLocNameInput" class="form-input"
+                                    placeholder="Örn: İstanbul, Türkiye">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="contactLatInput">Enlem (Latitude)</label>
+                                <input type="number" step="any" id="contactLatInput" class="form-input"
+                                    placeholder="41.0082">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="contactLngInput">Boylam (Longitude)</label>
+                                <input type="number" step="any" id="contactLngInput" class="form-input"
+                                    placeholder="28.9784">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes Section -->
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label class="form-label" for="contactNotesInput">Kişiyle Alakalı Serbest Notlar &
+                            Detaylar</label>
+                        <textarea id="contactNotesInput" class="form-textarea" rows="4"
+                            placeholder="Özel anlaşmalar, yükleme koşulları, şoför talimatları, dikkat edilecek hususlar veya serbest notlarınızı buraya yazabilirsiniz..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-actions-sticky">
+                    <button type="button" class="btn-secondary-action"
+                        onclick="document.getElementById('contactModal').classList.remove('active')">İptal</button>
+                    <button type="submit" class="btn-primary-action">Kişiyi Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NEW WORKER MODAL (ADMIN ONLY) -->
+    <div id="workerModal" class="modal-backdrop-custom">
+        <div class="modal-card" style="max-width: 480px;">
+            <div class="modal-head">
+                <h3 class="modal-title">👔 Yeni Çalışan Kaydı</h3>
+                <button type="button" id="btnCloseWorkerModal" class="modal-close-btn">&times;</button>
+            </div>
+
+            <div id="workerAlert" class="alert-box alert-danger"></div>
+
+            <form id="workerForm">
+                <div class="modal-body-scroll">
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label" for="workerUsernameInput">Kullanıcı Adı *</label>
+                        <input type="text" id="workerUsernameInput" class="form-input" required minlength="3"
+                            placeholder="Örn: mehmet_operasyon" autocomplete="username">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label" for="workerFullNameInput">Adı Soyadı / Görev Notu</label>
+                        <input type="text" id="workerFullNameInput" class="form-input"
+                            placeholder="Örn: Mehmet Özkan (Belge Uzmanı)">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label" for="workerPasswordInput">Giriş Şifresi * (Admin Belirler)</label>
+                        <input type="password" id="workerPasswordInput" class="form-input" required minlength="4"
+                            placeholder="En az 4 karakter" autocomplete="new-password">
+                    </div>
+                </div>
+
+                <div class="modal-actions-sticky">
+                    <button type="button" class="btn-secondary-action"
+                        onclick="document.getElementById('workerModal').classList.remove('active')">İptal</button>
+                    <button type="submit" class="btn-primary-action">Çalışanı Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- RESET WORKER PASSWORD MODAL (ADMIN ONLY) -->
+    <div id="workerPassModal" class="modal-backdrop-custom">
+        <div class="modal-card" style="max-width: 460px;">
+            <div class="modal-head">
+                <h3 class="modal-title">🔑 Çalışan Şifresini Sıfırla</h3>
+                <button type="button" id="btnCloseWorkerPassModal" class="modal-close-btn">&times;</button>
+            </div>
+
+            <div id="workerPassAlert" class="alert-box alert-danger"></div>
+
+            <form id="workerPassForm">
+                <input type="hidden" id="resetWorkerId">
+                <div class="modal-body-scroll">
+                    <p style="color: var(--adm-text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+                        <strong id="resetWorkerNameSpan" style="color: #fff;">-</strong> kullanıcısı için yeni bir şifre
+                        belirleyin:
+                    </p>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label" for="resetNewPassInput">Yeni Şifre (En az 4 karakter)</label>
+                        <input type="password" id="resetNewPassInput" class="form-input" required minlength="4"
+                            placeholder="••••••••">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="form-label" for="resetNewPassConfirmInput">Yeni Şifre Tekrarı</label>
+                        <input type="password" id="resetNewPassConfirmInput" class="form-input" required minlength="4"
+                            placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div class="modal-actions-sticky">
+                    <button type="button" class="btn-secondary-action"
+                        onclick="document.getElementById('workerPassModal').classList.remove('active')">İptal</button>
+                    <button type="submit" class="btn-primary-action">Şifreyi Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Admin JS -->
+    <script src="/admin/assets/admin.js"></script>
+</body>
+
+</html>

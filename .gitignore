@@ -1,0 +1,8 @@
+bin/
+obj/
+publish/
+.vs/
+.vscode/
+data/*.db-journal
+.DS_Store
+Thumbs.db
